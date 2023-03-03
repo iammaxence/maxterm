@@ -1,2 +1,2 @@
-# maxterm
-Making a terminal using Tauri and React
+## Board
+- Add linter
