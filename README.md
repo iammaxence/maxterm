@@ -1,6 +1,6 @@
 # maxterm
 
-/!\ In developpement
+/!\ In developpement /!\
 
 ## Board
 
