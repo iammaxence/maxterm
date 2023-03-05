@@ -1,31 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api';
+import React, { useEffect } from 'react';
 import './Home.scss';
+import useHomeHelper from './HomeHelper';
 
 export default function Home() {
-	const [currentDir, setCurrentDir] = useState('');
-	const [inputValue, setInputValue] = useState('');
-	const [textList, setTextList] = useState<string[]>([]);
+	const {
+		inputValue,
+		textList,
+		currentDir,
+		fetchCurrentDir,
+		setInputValue,
+		handleKeyDown
+	} = useHomeHelper();
 
 	useEffect(() => {
-		const fetchCurrentDir = async () => {
-			const result: string = await invoke('get_current_dir');
-			setCurrentDir(result);
-		};
-		fetchCurrentDir().catch((error) => console.error(error));
+		fetchCurrentDir();
 	}, []);
-
-	function handleKeyDown(event: any) {
-		if(event.key ==='Enter') {
-			applyCommand();
-		}
-	}
-
-	async function applyCommand() {
-		console.log('Apply command');
-		const result: string[] = await invoke('apply_command', { command: inputValue, args: { body: [currentDir] } });
-		setTextList(result);
-	}
 
 	return (
 		<div className="home">
@@ -36,7 +25,7 @@ export default function Home() {
 				type="text"
 				value={inputValue}
 				onInput={e => setInputValue((e.target as HTMLInputElement).value)}
-				onKeyDown={(event) => handleKeyDown(event)}>
+				onKeyDown={(event) => handleKeyDown(event, inputValue)}>
 			</input>
 		</div>
 	);
