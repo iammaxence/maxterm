@@ -43,6 +43,10 @@ fn get_files_and_subdirs(path: &str) -> Result<Vec<String>, std::io::Error> {
 
 #[tauri::command]
 fn apply_command(command: String, args: Arguments) -> Vec<String> {
+  if command == "clear" {
+    return vec![];
+  }
+
   if command == "ls" {
     return match get_files_and_subdirs(&args.body[0]) {
       Ok(output) => output,
@@ -50,7 +54,7 @@ fn apply_command(command: String, args: Arguments) -> Vec<String> {
     };
   }
   // I need to send error
-  vec!["test".to_string()]
+  vec!["Error".to_string()]
 }
 
 #[tauri::command]

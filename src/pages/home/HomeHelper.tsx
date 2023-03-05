@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import React from 'react';
 import { invoke } from '@tauri-apps/api';
+
+interface TerminalObject {
+	type: 'prompt' | 'text',
+	content: string[]
+}
 
 const useHomeHelper = () => {
 
-	const [inputValue, setInputValue] = useState('');
-	const [currentDir, setCurrentDir] = useState('');
-	const [textList, setTextList] = useState<string[]>([]);
+	const [inputValue, setInputValue] = React.useState('');
+	const [currentDir, setCurrentDir] = React.useState('');
+	const [terminaObjectList, setTerminaObjectList] = React.useState<TerminalObject[]>([]);
 
 	async function fetchCurrentDir(): Promise<void> {
 		const result: string = await invoke('get_current_dir');
@@ -18,17 +23,32 @@ const useHomeHelper = () => {
 		}
 	}
 
+	function buildTerminalObject(currentList: TerminalObject[], contentToAdd: string[]): TerminalObject[] {
+		const responseText: TerminalObject = { type: 'text', content: contentToAdd };
+		const prompt: TerminalObject = { type: 'prompt', content: [ currentDir, inputValue] } ;
+		return [...currentList, prompt, responseText];
+	}
+
+	function handleApplyCommandResult(result: string[]) {
+		if(result.length === 0) {
+			setTerminaObjectList([]);
+		} else {
+			setTerminaObjectList((currentTerminalObjectList) => buildTerminalObject(currentTerminalObjectList, result));
+		}
+		
+		setInputValue('');
+	}
+
 	async function applyCommand(cmd: string): Promise<void> {
-		console.log('Apply command');
 		const result: string[] = await invoke('apply_command', { command: cmd, args: { body: [currentDir] } });
-		setTextList(result);
+		handleApplyCommandResult(result);
 	}
 
 	return {
 		fetchCurrentDir,
 		handleKeyDown,
 		applyCommand,
-		textList,
+		terminaObjectList,
 		currentDir,
 		inputValue,
 		setInputValue

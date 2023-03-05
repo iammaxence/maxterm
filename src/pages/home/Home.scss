@@ -1,10 +1,23 @@
 .home {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto;
   justify-content: space-between;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: white;
+  padding: 0.25rem;
+
+  &--prompt {
+    padding: 0.25rem;
+    border: solid 1px;
+    border-color: red;
+    height: 100%;
+    width: 100%;
+  }
 
   &--input {
     height: 8%;
+    width: 95%;
   }
 }
