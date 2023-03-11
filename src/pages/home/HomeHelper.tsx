@@ -19,8 +19,12 @@ const useHomeHelper = () => {
 
 	function handleKeyDown(event: any, cmd: string): void {
 		if(event.key ==='Enter') {
-			applyCommand(cmd);
+			applyCommand(parseCmd(cmd));
 		}
+	}
+
+	function parseCmd(cmd: string): string[] {
+		return cmd.split(' ');
 	}
 
 	function buildTerminalObject(currentList: TerminalObject[], contentToAdd: string[]): TerminalObject[] {
@@ -35,13 +39,19 @@ const useHomeHelper = () => {
 		} else {
 			setTerminaObjectList((currentTerminalObjectList) => buildTerminalObject(currentTerminalObjectList, result));
 		}
-		
-		setInputValue('');
 	}
 
-	async function applyCommand(cmd: string): Promise<void> {
-		const result: string[] = await invoke('apply_command', { command: cmd, args: { body: [currentDir] } });
-		handleApplyCommandResult(result);
+	async function applyCommand(promptList: string[]): Promise<void> {
+		const cmd = promptList.shift();
+
+		if(cmd == 'clear') {
+			setTerminaObjectList([]);
+		} else if(cmd == 'ls') {
+			const result: string[] = await invoke('ls', { command: cmd, args: [currentDir, ...promptList] });
+			handleApplyCommandResult(result);
+		}
+
+		setInputValue('');
 	}
 
 	return {

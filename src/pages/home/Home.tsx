@@ -27,7 +27,7 @@ export default function Home() {
 					if(terminalObject.type == 'prompt') {
 						return (
 							<div className="home--prompt" key={'prompt1'+terminalObject.content}>
-								{terminalObject.content.map((content) => <p key={'content'+content}>{content}</p>)}
+								{terminalObject.content.map((content) => <span key={'content'+content}>{content}</span>)}
 							</div>);
 					}
 					return (
