@@ -49,6 +49,9 @@ const useHomeHelper = () => {
 		} else if(cmd == 'ls') {
 			const result: string[] = await invoke('ls', { command: cmd, args: [currentDir, ...promptList] });
 			handleApplyCommandResult(result);
+		} else if(cmd == 'cd') {
+			const result: string = await invoke('cd', { command: cmd, args: [currentDir, ...promptList] });
+			setCurrentDir(result);
 		}
 
 		setInputValue('');

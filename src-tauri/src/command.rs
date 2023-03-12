@@ -3,19 +3,33 @@ mod file_manager;
 
 #[tauri::command]
 pub fn clear() -> Vec<String> {
-  return vec![];
+    return vec![];
 }
 
 #[tauri::command]
-pub fn ls(args: Vec<String>) ->Vec<String> {
-  let mut path = &args[0];
+pub fn cd(args: Vec<String>) -> String {
+    if args.len() == 1 {
+        return "/".to_string();
+    }
+    if args.len() == 2 {
+        return match file_manager::go_to_dir(&args[0], &args[1]) {
+            Ok(output) => output,
+            Err(_) => args[0].to_string(),
+        };
+    }
+    return args[0].to_string();
+}
 
-  if args.len() > 1 {
-   path = &args[1];
-  }
+#[tauri::command]
+pub fn ls(args: Vec<String>) -> Vec<String> {
+    let mut path = &args[0];
 
-  return match file_manager::get_files_and_subdirs(&path) {
-    Ok(output) => output,
-    Err(_) => vec![],
-  };
+    if args.len() > 1 {
+        path = &args[1];
+    }
+
+    return match file_manager::get_files_and_subdirs(&path) {
+        Ok(output) => output,
+        Err(_) => vec![],
+    };
 }
