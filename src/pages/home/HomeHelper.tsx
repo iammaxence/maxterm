@@ -34,11 +34,7 @@ const useHomeHelper = () => {
 	}
 
 	function handleApplyCommandResult(result: string[]) {
-		if(result.length === 0) {
-			setTerminaObjectList([]);
-		} else {
-			setTerminaObjectList((currentTerminalObjectList) => buildTerminalObject(currentTerminalObjectList, result));
-		}
+		setTerminaObjectList((currentTerminalObjectList) => buildTerminalObject(currentTerminalObjectList, result));
 	}
 
 	async function applyCommand(promptList: string[]): Promise<void> {
@@ -52,6 +48,7 @@ const useHomeHelper = () => {
 		} else if(cmd == 'cd') {
 			const result: string = await invoke('cd', { command: cmd, args: [currentDir, ...promptList] });
 			setCurrentDir(result);
+			handleApplyCommandResult([]);
 		}
 
 		setInputValue('');

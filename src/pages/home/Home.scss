@@ -8,9 +8,16 @@
   color: white;
   padding: 0.25rem;
 
+  &--text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
   &--prompt {
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
     padding: 0.25rem;
     border: solid 1px;
     border-color: red;
