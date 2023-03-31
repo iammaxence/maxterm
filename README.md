@@ -2,6 +2,8 @@
 
 /!\ In developpement /!\
 
+![maxterm-screenshot](https://user-images.githubusercontent.com/32987179/229206120-b1ab9e82-81e4-4584-8138-b4f81d5b9b67.png)
+
 ## Board
 
 - Add linter.
