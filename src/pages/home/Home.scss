@@ -5,7 +5,7 @@
   justify-content: space-between;
   overflow-y: auto;
   overflow-x: hidden;
-  color: white;
+  color: #4273B2;
   padding: 0.25rem;
 
   &--text {
@@ -18,17 +18,31 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0.25rem;
-    border: solid 1px;
-    border-color: red;
+    padding: 0 0.25rem;
     height: 100%;
     width: 100%;
   }
 
   &--result {
     display: flex;
-    flex-wrap: wrap-reverse;
+    flex-wrap: wrap;
     gap: 1rem;
+    color: white;
+    margin: 1rem 0;
+  }
+
+  &--input-bloc {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &--input-bloc-triangle {
+    width: 0;
+    height: 0;
+    border-left: 12px solid #4273B2;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
   }
 
   &--input {

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { invoke } from '@tauri-apps/api';
 
-type Result = {
+export type Result = {
 	content: string[]
 }
 
-type Prompt = {
+export type Prompt = {
 	time: string,
 	content: string[]
 }
@@ -38,8 +38,8 @@ const useHomeHelper = () => {
 	}
 
 	function buildTerminalObject(currentList: TerminalObject[], contentToAdd: string[]): TerminalObject[] {
-		const responseText: TerminalObject = { content: contentToAdd };
-		const prompt: TerminalObject = { time: new Date().toLocaleTimeString(), content: [ currentDir, inputValue] } ;
+		const responseText: Result = { content: contentToAdd };
+		const prompt: Prompt = { time: new Date().toLocaleTimeString(), content: [ currentDir, inputValue] } ;
 		return [...currentList, prompt, responseText];
 	}
 
