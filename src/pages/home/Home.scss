@@ -25,6 +25,12 @@
     width: 100%;
   }
 
+  &--result {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    gap: 1rem;
+  }
+
   &--input {
     height: 8%;
     width: 95%;

@@ -1,16 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { invoke } from '@tauri-apps/api';
 
-interface TerminalObject {
-	type: 'prompt' | 'text',
+type Result = {
 	content: string[]
 }
+
+type Prompt = {
+	time: string,
+	content: string[]
+}
+
+type TerminalObject = Prompt | Result;
 
 const useHomeHelper = () => {
 
 	const [inputValue, setInputValue] = React.useState('');
 	const [currentDir, setCurrentDir] = React.useState('');
 	const [terminaObjectList, setTerminaObjectList] = React.useState<TerminalObject[]>([]);
+
+	function isPrompt(obj: TerminalObject): obj is Prompt {
+		return 'time' in obj;
+	}
 
 	async function fetchCurrentDir(): Promise<void> {
 		const result: string = await invoke('get_current_dir');
@@ -28,8 +38,8 @@ const useHomeHelper = () => {
 	}
 
 	function buildTerminalObject(currentList: TerminalObject[], contentToAdd: string[]): TerminalObject[] {
-		const responseText: TerminalObject = { type: 'text', content: contentToAdd };
-		const prompt: TerminalObject = { type: 'prompt', content: [ currentDir, inputValue] } ;
+		const responseText: TerminalObject = { content: contentToAdd };
+		const prompt: TerminalObject = { time: new Date().toLocaleTimeString(), content: [ currentDir, inputValue] } ;
 		return [...currentList, prompt, responseText];
 	}
 
@@ -61,9 +71,10 @@ const useHomeHelper = () => {
 		terminaObjectList,
 		currentDir,
 		inputValue,
-		setInputValue
+		setInputValue,
+		isPrompt,
 	};
 
 };
 
-export default useHomeHelper;
+export { useHomeHelper };
