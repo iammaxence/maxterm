@@ -21,7 +21,7 @@ fn main() {
             get_current_dir,
             command::clear,
             command::ls,
-            command::cd
+            command::cd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

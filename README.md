@@ -7,10 +7,10 @@
 ## Board
 
 - Add linter.
+- Add vitest
 
 ### Feature
 
-- Highlight folders when getting result from ls command.
 - Add "cd .." to go back to previous folder path.
 - Handle error when user enter wrong informations for a command.
 

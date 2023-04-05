@@ -1,17 +1,20 @@
 import React, { useEffect } from 'react';
 import './Home.scss';
-import { Prompt, Result, useHomeHelper } from './HomeHelper';
+import { Prompt, Result, TerminalObject, useHomeHelper } from './HomeHelper';
 import { useDate } from '../../hooks/UseDate';
+import { LocaleDate } from '../../domain/LocaleDate';
+import { FileSystem } from '../../domain/FilesAndFoldersSystem';
 
 export default function Home() {
 	const {
 		inputValue,
-		terminaObjectList,
 		currentDir,
 		fetchCurrentDir,
 		setInputValue,
 		handleKeyDown,
-		isPrompt
+		isPrompt,
+		isFileSystems,
+		terminalObjectList,
 	} = useHomeHelper();
 
 	const currentDate = useDate();
@@ -22,14 +25,14 @@ export default function Home() {
 
 	useEffect(() => {
 		window.scrollTo(0, document.body.scrollHeight);
-	}, [terminaObjectList]);
+	}, [terminalObjectList]);
 
 	function displayTerminalObjectPrompt(terminalObjectPrompt: Prompt) {
 		const time = terminalObjectPrompt.time;
 		const locationPath = terminalObjectPrompt.content[0];
 
 		return (
-			<div key={'prompt'+time+locationPath}>
+			<div key={terminalObjectPrompt.id}>
 				<div>[{time}] {locationPath}</div>
 				<div className="home--prompt">
 					{terminalObjectPrompt.content.slice(1).map((content) => <span key={'content_'+content+'_'+time}>{content}</span>)}
@@ -40,23 +43,37 @@ export default function Home() {
 
 	function displayTerminalObjectResult(terminalObjectResult: Result) {
 		return (
-			<div className="home--result" key={'text1'+terminalObjectResult.content}>
+			<div className="home--result" key={terminalObjectResult.id}>
 				{terminalObjectResult.content.map((content) => <span key={'content'+content}>{content}</span>)}
 			</div>);
+	}
+
+	function displayFilesAndFoldersSystem(fileSystems: FileSystem[]){
+		return (
+			<div className="home--result">
+				{
+					fileSystems.map((fileSystem) =>
+						<span className={fileSystem.type === 'Folder' ? 'home--folder': ''} key={'content'+fileSystem.name}>{fileSystem.name}</span>)
+				}
+			</div>
+		);
 	}
 
 	return (
 		<div className="home">
 			<div className="home--text">
-				{terminaObjectList.map((terminalObject) => {
+				{terminalObjectList.map((terminalObject: TerminalObject) => {
 					if(isPrompt(terminalObject)) {
 						return displayTerminalObjectPrompt(terminalObject);
+					} else if (isFileSystems(terminalObject)) {
+						return displayFilesAndFoldersSystem(terminalObject);
+					} else {
+						return displayTerminalObjectResult(terminalObject);
 					}
-					return displayTerminalObjectResult(terminalObject);
 				})}
 			</div>
 			<div className="home--prompt">
-				<div>[{currentDate.toLocaleTimeString()}] {currentDir}</div>
+				<div>[{LocaleDate.of(currentDate).format()}] {currentDir}</div>
 				<div className='home--input-bloc'>
 					<div className='home--input-bloc-triangle'></div>
 					<input

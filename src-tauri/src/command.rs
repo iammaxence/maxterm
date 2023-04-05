@@ -21,7 +21,7 @@ pub fn cd(args: Vec<String>) -> String {
 }
 
 #[tauri::command]
-pub fn ls(args: Vec<String>) -> Vec<String> {
+pub fn ls(args: Vec<String>) -> file_manager::Filesystem {
     let mut path = &args[0];
 
     if args.len() > 1 {
@@ -30,6 +30,9 @@ pub fn ls(args: Vec<String>) -> Vec<String> {
 
     return match file_manager::get_files_and_subdirs(&path) {
         Ok(output) => output,
-        Err(_) => vec![],
-    };
+        Err(_) => file_manager::Filesystem {
+            files: Vec::new(),
+            folders: Vec::new(),
+        },
+    }
 }

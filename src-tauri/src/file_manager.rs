@@ -1,21 +1,36 @@
 use std::{fs, path::Path};
+use serde::Serialize;
+use serde::Deserialize;
 
-pub fn get_files_and_subdirs(path: &str) -> Result<Vec<String>, std::io::Error> {
-    let mut result: Vec<String> = Vec::new();
+#[derive(Serialize, Deserialize)]
+pub struct Filesystem {
+    pub files: Vec<String>,
+    pub folders: Vec<String>,
+}
+
+pub fn get_files_and_subdirs(path: &str) -> Result<Filesystem, std::io::Error> {
+    let mut result = Filesystem {
+        files: Vec::new(),
+        folders: Vec::new(),
+    };
 
     for entry in fs::read_dir(path)? {
         let entry = entry?;
         let path = entry.path();
         let file_name = path.file_name().unwrap().to_str().unwrap();
 
-        result.push(file_name.to_string());
+        if entry.file_type()?.is_dir() {
+            result.folders.push(file_name.to_string());
+        } else {
+            result.files.push(file_name.to_string());
+        }
     }
 
     return Ok(result);
 }
 
-fn folder_exists(name: &str) -> bool {
-    let path = Path::new(name);
+fn folder_exists(my_path: &str) -> bool {
+    let path = Path::new(my_path);
     path.exists() && path.is_dir()
 }
 
