@@ -21,6 +21,12 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src/**/*",
+    "tests/**/*" 
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
   ]
+
 }
