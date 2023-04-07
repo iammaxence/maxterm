@@ -32,6 +32,7 @@ const useHomeHelper = () => {
 
 	async function fetchCurrentDir(): Promise<void> {
 		const result: string = await invoke('get_current_dir');
+
 		setCurrentDir(result);
 	}
 
