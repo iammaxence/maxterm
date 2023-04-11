@@ -81,7 +81,7 @@ const useHomeHelper = () => {
 		if(cmd == 'clear') {
 			setTerminalObjectList([]);
 		} else if(cmd == 'ls') {
-			const { files, folders }: {files: string[], folders: string[]}= await invoke('ls', { command: cmd, args: [currentDir, ...promptList] });
+			const { files, folders } : {files: string[], folders: string[]} = await invoke('ls', { command: cmd, args: [currentDir, ...promptList] });
 			handleFileAndFolderSystem(FilesAndFoldersSystem.of(files, folders));
 		} else if(cmd == 'cd') {
 			const result: string = await invoke('cd', { command: cmd, args: [currentDir, ...promptList] });
