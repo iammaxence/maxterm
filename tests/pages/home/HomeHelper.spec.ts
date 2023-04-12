@@ -1,11 +1,10 @@
 import { describe, vi } from 'vitest';
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { renderHook, waitFor } from '@testing-library/react';
-import { Prompt, TerminalObject, useHomeHelper } from '../../../src/pages/home/HomeHelper';
+import { useHomeHelper } from '../../../src/pages/home/HomeHelper';
 import { randomFillSync } from 'crypto';
-import { FileSystem } from '../../../src/domain/FilesAndFoldersSystem';
 
-const { result: component } = renderHook(() => useHomeHelper());
+let component;
 
 describe('useHomeHelper', async () => {
 	beforeAll(() => {
@@ -17,9 +16,14 @@ describe('useHomeHelper', async () => {
 			},
 		};
 	});
+
+	beforeEach(() => {
+		const { result } = renderHook(() => useHomeHelper());
+		component = result;
+	});
 	
 	it('Shoud fetch path of current dir', async () => {
-		mockIPC((cmd, args) => {
+		mockIPC((cmd, _) => {
 			if(cmd === 'get_current_dir') {
 				return Promise.resolve('/test');
 			}
@@ -33,37 +37,35 @@ describe('useHomeHelper', async () => {
 
 	});
 
-	describe('Prompt', () => {
-		it('Should be true', () => {
-			const prompt: TerminalObject = { id: 1, time: '2011-10-05T14:48:00', content: ['test'] };
+	// describe('Prompt', () => {
+	// 	it('Should be true', () => {
+	// 		const prompt: TerminalObject = { id: 1, time: '2011-10-05T14:48:00', content: ['test'] };
 
-			expect(component.current.isPrompt(prompt)).toBe(true);
-		});
+	// 		expect(component.current.isPrompt(prompt)).toBe(true);
+	// 	});
 
-		it('Should be false', () => {
-			const terminalObject: TerminalObject = { id: 1, content: ['test'] };
+	// 	it('Should be false', () => {
+	// 		const terminalObject: TerminalObject = { id: 1, content: ['test'] };
 
-			expect(component.current.isPrompt(terminalObject)).toBe(false);
-		});
-	});
+	// 		expect(component.current.isPrompt(terminalObject)).toBe(false);
+	// 	});
+	// });
 
-	describe('FileSystems', () => {
-		it('Should be true', () => {
-			const fileSystems: FileSystem[] = [{ type: 'File', name: 'test' }, { type: 'Folder', name: 'test1' }]; 
+	// describe('FileSystems', () => {
+	// 	it('Should be true', () => {
+	// 		const fileSystems: FileSystem[] = [{ type: 'File', name: 'test' }, { type: 'Folder', name: 'test1' }]; 
 
-			expect(component.current.isFileSystems(fileSystems)).toBe(true);
-		});
-		it('Should be false', () => {
-			const terminalObject: TerminalObject = { id: 1, content: ['test'] };
+	// 		expect(component.current.isFileSystems(fileSystems)).toBe(true);
+	// 	});
+	// 	it('Should be false', () => {
+	// 		const terminalObject: TerminalObject = { id: 1, content: ['test'] };
 
-			expect(component.current.isFileSystems(terminalObject)).toBe(false);
-		});
-	});
+	// 		expect(component.current.isFileSystems(terminalObject)).toBe(false);
+	// 	});
+	// });
 
 	describe('Should apply command', () => {
 		it('clear', async () => {
-			component.current.terminalObjectList = [{ id: 1, content: ['hello'] }, { id: 2, content: ['world'] }];
-		
 			component.current.applyCommand(['clear']);
 			
 			await waitFor(() => {
@@ -77,48 +79,59 @@ describe('useHomeHelper', async () => {
 					return Promise.resolve({ files: ['file1', 'file2'], folders: ['folder1', 'folder2'] });
 				}
 			});
-			component.current.terminalObjectList = [];
-		
+
 			component.current.applyCommand(['ls']);
 			
 			await waitFor(() => {
-				const { time } = component.current.terminalObjectList[0] as Prompt;
-				expect(component.current.terminalObjectList).toEqual([
-					{ id: 1, time, content: ['/test', ''] },
-					[{ name: 'file1', type: 'File' }, { name: 'file2', type: 'File' }, { name: 'folder1', type: 'Folder' }, { name: 'folder2', type: 'Folder' }]
-				]);
+				const time = component.current.terminalObjectList[0].time;
+				expect(component.current.terminalObjectList).toEqual([{
+					id: 1,
+					time,
+					prompt: {
+						path: '',
+						command: 'ls',
+					},
+					result: [{ name: 'file1', type: 'File' }, { name: 'file2', type: 'File' }, { name: 'folder1', type: 'Folder' }, { name: 'folder2', type: 'Folder' }]
+				}]);
 			});
 		});
 
-		// it('cd', async () => {
-		// 	mockIPC((cmd, _) => {
-		// 		if(cmd === 'cd') {
-		// 			return Promise.resolve('/test/path');
-		// 		}
-		// 	});
+		it('cd', async () => {
+			mockIPC((cmd, _) => {
+				if(cmd === 'cd') {
+					return Promise.resolve('/test/path');
+				}
+			});
 
-		// 	component.current.applyCommand(['cd']);
+			component.current.applyCommand(['cd']);
 
-		// 	await waitFor(() => {
-		// 		const { time } = component.current.terminalObjectList[0] as Prompt;
-		// 		expect(component.current.terminalObjectList).toEqual([
-		// 			{ id: 1, time, content: ['', ''] },
-		// 			{ id: 2, content: [] }
-		// 		]);
-		// 	});
-		// });
+			await waitFor(() => {
+				const time = component.current.terminalObjectList[0].time;
+				expect(component.current.terminalObjectList).toEqual([{
+					id: 1,
+					time,
+					prompt: {
+						path: '/test/path',
+						command: 'cd',
+					},
+					result: []
+				}]);
+			});
+		});
 	});
+
+	// describe('HandleKeyDown', () => {
+	// 	it('Should apply command when press enter', async () => {
+	// 		const spy = vi.spyOn(component.current, 'applyCommand');
+	// 		const event = {
+	// 			key: 'Enter',
+	// 		} as KeyboardEvent;
+
+	// 		component.current.handleKeyDown(event, 'cd');
+
+	// 		await waitFor(() => {
+	// 			expect(spy).toHaveBeenCalled();
+	// 		});
+	// 	});
+	// });
 });
-
-/*
-
-[
-	{
-		id: 1,
-		time: '10:00'
-		prompt: { path: '...', command: '...' }
-		result: {}
-	}
-]
-
-*/

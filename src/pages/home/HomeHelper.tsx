@@ -1,7 +1,7 @@
 import React, { KeyboardEvent, useRef } from 'react';
 import { invoke } from '@tauri-apps/api';
-import { LocaleDate } from '../../domain/LocaleDate';
 import { FileSystem, FilesAndFoldersSystem } from '../../domain/FilesAndFoldersSystem';
+import { LocaleDate } from '../../domain/LocaleDate';
 
 export type Result = {
 	id: number
@@ -14,21 +14,21 @@ export type Prompt = {
 	content: string[]
 }
 
-export type TerminalObject = Prompt | Result | FileSystem[];
+export type TerminalObject = {
+	id: number,
+	time: string,
+	prompt: {
+		path: string,
+		command: string,
+	}
+	result: FileSystem[],
+}
 
 const useHomeHelper = () => {
 	const id = useRef<number>(0);
 	const [inputValue, setInputValue] = React.useState('');
 	const [currentDir, setCurrentDir] = React.useState('');
 	const [terminalObjectList, setTerminalObjectList] = React.useState<TerminalObject[]>([]);
-
-	function isPrompt(obj: TerminalObject): obj is Prompt {
-		return 'time' in obj;
-	}
-
-	function isFileSystems(obj: TerminalObject): obj is FileSystem[] {
-		return Array.isArray(obj);
-	}
 
 	async function fetchCurrentDir(): Promise<void> {
 		const result: string = await invoke('get_current_dir');
@@ -51,28 +51,29 @@ const useHomeHelper = () => {
 		return id.current;
 	}
 
-	function buildResult(content: string[]): Result {
-		return { id: generateId(), content };
-	}
-
 	function buildTime(): string {
 		return LocaleDate.create().format();
 	}
 
-	function buildPrompt(currentDir: string, command: string): Prompt {
-		return { id: generateId(), time: buildTime(), content: [ currentDir, command] } ;
+	function buildTerminaObject(path: string, command: string, result: FileSystem[]): TerminalObject {
+		return {
+			id: generateId(),
+			time: buildTime(),
+			prompt: { path, command },
+			result,
+		};
 	}
 
-	function buildTerminalObject(currentList: TerminalObject[], contentToAdd: string[]): TerminalObject[] {
-		return [...currentList, buildPrompt(currentDir, inputValue), buildResult(contentToAdd)];
-	}
-
-	function handleApplyCommandResult(result: string[]) {
-		setTerminalObjectList((currentTerminalObjectList) => buildTerminalObject(currentTerminalObjectList, result));
+	function handleApplyCommandCd(newPath: string) {
+		setTerminalObjectList((currentTerminalObjectList) => [
+			...currentTerminalObjectList,
+			buildTerminaObject(newPath, 'cd', [])]);
 	}
 
 	function handleFileAndFolderSystem(filesAndFoldersSystem: FilesAndFoldersSystem) {
-		setTerminalObjectList((currentTerminalObjectList) => [...currentTerminalObjectList, buildPrompt(currentDir, inputValue), filesAndFoldersSystem.toFileSystem()]);
+		setTerminalObjectList((currentTerminalObjectList) => [
+			...currentTerminalObjectList,
+			buildTerminaObject(currentDir, 'ls', filesAndFoldersSystem.toFileSystem())]);
 	}
 
 	async function applyCommand(promptList: string[]): Promise<void> {
@@ -86,7 +87,7 @@ const useHomeHelper = () => {
 		} else if(cmd == 'cd') {
 			const result: string = await invoke('cd', { command: cmd, args: [currentDir, ...promptList] });
 			setCurrentDir(result);
-			handleApplyCommandResult([]);
+			handleApplyCommandCd(result);
 		}
 
 		setInputValue('');
@@ -100,8 +101,6 @@ const useHomeHelper = () => {
 		currentDir,
 		inputValue,
 		setInputValue,
-		isPrompt,
-		isFileSystems,
 	};
 
 };

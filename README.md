@@ -4,6 +4,20 @@
 
 ![maxterm-screenshot](https://user-images.githubusercontent.com/32987179/229206120-b1ab9e82-81e4-4584-8138-b4f81d5b9b67.png)
 
+## Structure
+
+### Object from terminal
+
+[
+	{
+		id: number,
+		time: string
+		prompt: { path: string, command: string }
+		result: FileSystem[]
+	}
+]
+
+
 ## Board
 
 - Add linter.
